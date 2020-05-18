@@ -38,6 +38,14 @@ void insertionSort(double* arr, int size)
         break;
   }
 }
+
+void partition(double* arr, int size)
+{
+  if
+
+void quickSort(double* arr, int size)
+{
+  
 int main()
 {
   double a[3]={1050,110.2,2354.2};
