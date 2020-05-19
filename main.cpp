@@ -1,6 +1,7 @@
 #include<iostream>
 #include<array>
-
+#include<fstream>
+#include<exception>
 using namespace std;
 
 
@@ -46,8 +47,25 @@ void partition(double* arr, int size)
 void quickSort(double* arr, int size)
 {
   
-int main()
+int main(int argc, char* argv)
 {
+  int number=0;
+  if (argc!=1)
+  {
+    cout<<"enter only the number of elements in the list in the commmandline"<<endl;
+    exit;
+  }
+  else
+  {
+    try
+    {
+      number=atoi(argv[1]);
+    }catch(const exception& e)
+    {
+      cout<<"enter the number only\n";
+    }
+  }
+  
   double a[3]={1050,110.2,2354.2};
   double* arr;
 
