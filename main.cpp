@@ -6,8 +6,15 @@
 #include <time.h>
 #include <stdio.h>
 using namespace std;
-
-
+//g++ Lu_lab4 -lpthread
+void *PrintHello(void *threadid)
+{
+   long tid;
+   tid = (long)threadid;
+   printf("Hello World! It's me, thread #%ld!\n", tid);
+   fflush(stdout);
+   pthread_exit(NULL);
+}
 // The number of elements (n) should be provided as command line argument, while the
 //number of threads (M) should be read from the console.
 void bubbleSort(int* arr, int size)
@@ -112,8 +119,18 @@ int main(int argc, char* argv[])
   }
   cout<<"There're "<<NThreads<<" threads initilized!"<<endl;
    srand(time(0)); 
-  out<<endl;
+  
+   pthread_t threads[NThreads];
+   int rc;
+   long t;
+   for(t=0;t<NThreads;t++){
+     rc = pthread_create(&threads[t], NULL, PrintHello, (void *)t);
+     pthread_join(threads[t],NULL);
+   }
+   
 
+  
+  
 /*  
   int a[7]={3,1,2,4,5,6,8};
   int* arr;
