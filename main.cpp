@@ -46,26 +46,6 @@ void insertionSort(int* arr, int size)
 int partition(int* arr, int low, int high)
 {
   int pivot= arr[(low+high)/2];
-/*  while (low < high)
-  {
-    if (arr[low]>=pivot && arr[high]<pivot)
-    {
-      swap(arr[low],arr[high]);
-      low++;
-      high--;
-    }else 
-    {  
-      if (arr[low]<pivot)
-        low++;
-      if (arr[high]>pivot) 
-        high--;
-    }
-  }
-  if (low>high)
-    return low-1;
-  else 
-    return low
-    */
   while(true)
   {
     while(arr[low]<pivot)
@@ -94,6 +74,11 @@ void quickSort(int* arr, int low,int high)
 int main(int argc, char* argv[])
 {
   int number=0;
+  char SNThreads[5];
+  int NThreads;
+  ofstream out;
+  string filename="log.txt";
+  int range=100;
   if (argc!=2)
   {
     cout<<"enter only the number of elements in the list in the commmandline"<<endl;
@@ -106,13 +91,32 @@ int main(int argc, char* argv[])
       number=atoi(argv[1]);
     }catch(const exception& e)
     {
-      cout<<"enter the number only\n";
+      cout<<"Enter the number of elements only！\n";
     }
   }
-  
+  cout<<"There are "<<number<<" elements in the file."<<endl;
+  out.open(filename);
+   for( int i=0; i< number; i++)
+    out<<rand()%range<<"\t";
+  out<<endl;
+  while(true){
+    cout<<"Enter the number of threads:\n";
+    cin>>SNThreads;
+    if (NThreads = atoi(SNThreads))
+    {
+      break;
+    }else
+    {
+      cout<<"Invalid input!"<<endl;
+    }
+  }
+  cout<<"There're "<<NThreads<<" threads initilized!"<<endl;
+   srand(time(0)); 
+  out<<endl;
+
+/*  
   int a[7]={3,1,2,4,5,6,8};
   int* arr;
-
   arr=a;
   for (int i=0; i<7;i++)
   cout<<arr[i]<<endl;
@@ -123,6 +127,6 @@ int main(int argc, char* argv[])
   for (int i=0; i<7;i++)
   cout<<arr[i]<<endl;
   
-  
+ */ 
   return 0;
 }
