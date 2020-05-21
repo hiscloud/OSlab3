@@ -11,16 +11,17 @@ using namespace std;
 //global variables
 pthread_mutex_t myMutex;
 ofstream out;
-ifstream in;
+//ifstream in;
 int number=0;
+string filename="log.txt";
 
 // The number of elements (n) should be provided as command line argument, while the
 //number of threads (M) should be read from the console.
-void bubbleSort(int* arr, int size)
+void bubbleSort(int* arr, int low,int high)
 {
-  for (int i=0; i< size;i++)
+  for (int i=low; i< high;i++)
   {
-    for (int j=0; j< size-1; j++)
+    for (int j=low; j< high-1; j++)
     {
       if (arr[j]>arr[j+1])
       {
@@ -32,13 +33,13 @@ void bubbleSort(int* arr, int size)
   }
 }
 
-void insertionSort(int* arr, int size)
+void insertionSort(int* arr, int low, int high)
 {
   
-  for( int i=0;i<size;i++)
+  for( int i=low;i<high;i++)
   {
     int k=i;
-    while(k>0)
+    while(k>low)
       if (arr[k]<arr[k-1])
       {
         swap(arr[k],arr[k-1]);
@@ -87,27 +88,62 @@ void partialSort()
   sortMethodN=rand()%3;
   if(sortMethodN==0)
   {
-    cout<<"using bubble sort"<<endl;
+    cout<<"\tusing bubble sort"<<endl;
   }else if(sortMethodN==1)
   {
-    cout<<"using insertion sort"<<endl;
+    cout<<"\tusing insertion sort"<<endl;
   }else
   {
-    cout<<"using quick sort"<<endl;
+    cout<<"\tusing quick sort"<<endl;
   }
 }   
 ////////////////////////////////////////////////
+void printArr(int* arr)
+{
+  
+}
 int* readArr()
 {
   int* arr=new int[number];
+  ifstream in;
+  string dummy1;
+  string dummy2;
+  string lastLine;
+  string element;
+  int j;
   
+  in.open(filename);
+  while(in.good()){
+    getline(in,dummy1);
+    getline(in,dummy2);
+  }
+  in.close();
+  if(dummy2=="")
+    lastLine=dummy1;
+  else
+    lastLine=dummy2;
+  cout<<lastLine<<endl;
+  //cout<<lastLine.length()<<endl;
+  element="";
+  j=0;
+  for (int i=0;i<lastLine.length();i++)
+  {
+    if (lastLine.at(i)!='\t')
+      element+=lastLine.at(i);
+    else
+    {
+      arr[j]=stoi(element);
+      element="";
+      j++;
+    }
+  }
+
+  return arr;
 }
 void *threadSort(void *threadid)
 {
-   
    long tid;
    tid = (long)threadid;
- //  int sortMethodN;
    while ( true)
    {
  //   sortMethodN=rand()%3;
@@ -151,7 +187,6 @@ int main(int argc, char* argv[])
   out.open(filename);
    for( int i=0; i< number; i++)
     out<<rand()%range<<"\t";
-  in.open(filename);
   out<<endl;
   
   while(true){
@@ -175,9 +210,12 @@ int main(int argc, char* argv[])
      rc = pthread_create(&threads[t], NULL, threadSort, (void *)t);
      pthread_join(threads[t],NULL);
    }
-   
+   int *array=readArr();
+   quickSort(array,1,number-1);
+  for (int i=0; i<number;i++)
+    cout<<array[i]<<endl;
   out.close();
-  in.close();
+ 
   
 /*  
   int a[7]={3,1,2,4,5,6,8};
