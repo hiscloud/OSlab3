@@ -8,11 +8,16 @@
 using namespace std;
 //g++ Lu_lab4 -lpthread
 
+//global variables
+pthread_mutex_t myMutex;
+ofstream out;
+ifstream in;
+int number=0;
+
 // The number of elements (n) should be provided as command line argument, while the
 //number of threads (M) should be read from the console.
 void bubbleSort(int* arr, int size)
 {
-  
   for (int i=0; i< size;i++)
   {
     for (int j=0; j< size-1; j++)
@@ -70,24 +75,63 @@ void quickSort(int* arr, int low,int high)
    quickSort(arr,p+1,high);
   }
 }
-
+void partialSort()
+{
+  int sortMethodN;
+  int i,j;
+  i=rand()%number;
+  j=rand()%number;
+  if (i>j)
+    swap(i,j);
+  cout<<"i="<<i<<", j="<<j;
+  sortMethodN=rand()%3;
+  if(sortMethodN==0)
+  {
+    cout<<"using bubble sort"<<endl;
+  }else if(sortMethodN==1)
+  {
+    cout<<"using insertion sort"<<endl;
+  }else
+  {
+    cout<<"using quick sort"<<endl;
+  }
+}   
+////////////////////////////////////////////////
+int* readArr()
+{
+  int* arr=new int[number];
+  
+}
 void *threadSort(void *threadid)
 {
+   
    long tid;
    tid = (long)threadid;
-   printf("Hello World! It's me, thread #%ld!\n", tid);
-   fflush(stdout);
-   pthread_exit(NULL);
+ //  int sortMethodN;
+   while ( true)
+   {
+ //   sortMethodN=rand()%3;
+     pthread_mutex_lock(&myMutex);
+     printf(" thread #%ld sorting!     ", tid);
+     partialSort();
+     pthread_mutex_unlock(&myMutex);
+     break;
+   }
+  fflush(stdout);
+    pthread_exit(NULL);
 }
+
 
 int main(int argc, char* argv[])
 {
-  int number=0;
+//  int number=0;
   char SNThreads[5];
   int NThreads;
-  ofstream out;
+// ofstream out;
   string filename="log.txt";
   int range=100;
+  
+  srand(time(0)); 
   if (argc!=2)
   {
     cout<<"enter only the number of elements in the list in the commmandline"<<endl;
@@ -107,7 +151,9 @@ int main(int argc, char* argv[])
   out.open(filename);
    for( int i=0; i< number; i++)
     out<<rand()%range<<"\t";
+  in.open(filename);
   out<<endl;
+  
   while(true){
     cout<<"Enter the number of threads:\n";
     cin>>SNThreads;
@@ -120,7 +166,7 @@ int main(int argc, char* argv[])
     }
   }
   cout<<"There're "<<NThreads<<" threads initilized!"<<endl;
-   srand(time(0)); 
+   
   
    pthread_t threads[NThreads];
    int rc;
@@ -130,8 +176,8 @@ int main(int argc, char* argv[])
      pthread_join(threads[t],NULL);
    }
    
-
-  
+  out.close();
+  in.close();
   
 /*  
   int a[7]={3,1,2,4,5,6,8};
