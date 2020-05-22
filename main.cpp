@@ -17,8 +17,9 @@ string filename="log.txt";
 
 // The number of elements (n) should be provided as command line argument, while the
 //number of threads (M) should be read from the console.
-void bubbleSort(int* arr, int low,int high)
+void bubbleSort(int* arr, int low,int high1)
 {
+  int high=high1+1;
   for (int i=low; i< high;i++)
   {
     for (int j=low; j< high-1; j++)
@@ -33,9 +34,9 @@ void bubbleSort(int* arr, int low,int high)
   }
 }
 
-void insertionSort(int* arr, int low, int high)
+void insertionSort(int* arr, int low, int high1)
 {
-  
+  int high=high1+1;
   for( int i=low;i<high;i++)
   {
     int k=i;
@@ -68,6 +69,7 @@ int partition(int* arr, int low, int high)
 
 void quickSort(int* arr, int low,int high)
 {
+  //int high=high1-1;
   int p;
   if (low<high)
   {
@@ -76,6 +78,7 @@ void quickSort(int* arr, int low,int high)
    quickSort(arr,p+1,high);
   }
 }
+////////////////////////////////////////////////
 void partialSort()
 {
   int sortMethodN;
@@ -97,10 +100,16 @@ void partialSort()
     cout<<"\tusing quick sort"<<endl;
   }
 }   
-////////////////////////////////////////////////
-void printArr(int* arr)
+
+void printArr(int* arr, int low, int high)
 {
-  
+  for (int i=low; i<=high;i++)
+  {
+    cout<<arr[i]<<"\t";
+    out<<arr[i]<<"\t";
+  }
+  cout<<endl;
+  out<<endl;
 }
 int* readArr()
 {
@@ -211,25 +220,11 @@ int main(int argc, char* argv[])
      pthread_join(threads[t],NULL);
    }
    int *array=readArr();
-   quickSort(array,1,number-1);
+   bubbleSort(array,4,number-1);
   for (int i=0; i<number;i++)
     cout<<array[i]<<endl;
   out.close();
  
-  
-/*  
-  int a[7]={3,1,2,4,5,6,8};
-  int* arr;
-  arr=a;
-  for (int i=0; i<7;i++)
-  cout<<arr[i]<<endl;
-  
-  
-  quickSort(arr,0,6);
-  
-  for (int i=0; i<7;i++)
-  cout<<arr[i]<<endl;
-  
- */ 
+ 
   return 0;
 }
