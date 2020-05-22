@@ -5,12 +5,13 @@
 #include <stdlib.h>
 #include <time.h>
 #include <stdio.h>
+
 using namespace std;
-//g++ Lu_lab4 -lpthread
 
 //global variables
 pthread_mutex_t myMutex;
 ofstream out;
+bool stop;
 //ifstream in;
 int number=0;
 string filename="log.txt";
@@ -30,7 +31,6 @@ void bubbleSort(int* arr, int low,int high1)
         //arr[j]=arr[j+1];
       }
     }
-    
   }
 }
 
@@ -79,27 +79,8 @@ void quickSort(int* arr, int low,int high)
   }
 }
 ////////////////////////////////////////////////
-void partialSort()
-{
-  int sortMethodN;
-  int i,j;
-  i=rand()%number;
-  j=rand()%number;
-  if (i>j)
-    swap(i,j);
-  cout<<"i="<<i<<", j="<<j;
-  sortMethodN=rand()%3;
-  if(sortMethodN==0)
-  {
-    cout<<"\tusing bubble sort"<<endl;
-  }else if(sortMethodN==1)
-  {
-    cout<<"\tusing insertion sort"<<endl;
-  }else
-  {
-    cout<<"\tusing quick sort"<<endl;
-  }
-}   
+
+
 
 void printArr(int* arr, int low, int high)
 {
@@ -149,6 +130,33 @@ int* readArr()
 
   return arr;
 }
+void partialSort()
+{
+  int sortMethodN;
+  int i,j;
+  
+  int *array=readArr();
+  i=rand()%number;
+  j=rand()%number;
+  if (i>j)
+    swap(i,j);
+  cout<<"i="<<i<<", j="<<j;
+  sortMethodN=rand()%3;
+  if(sortMethodN==0)
+  {
+    cout<<"\tusing bubble sort"<<endl;
+    bubbleSort(array,i,j);
+  }else if(sortMethodN==1)
+  {
+    cout<<"\tusing insertion sort"<<endl;
+    insertionSort(array,i,j);
+  }else
+  {
+    cout<<"\tusing quick sort"<<endl;
+    quickSort(array,i,j);
+  }
+    printArr(array,0, number-1);
+}   
 void *threadSort(void *threadid)
 {
    long tid;
@@ -165,7 +173,27 @@ void *threadSort(void *threadid)
   fflush(stdout);
     pthread_exit(NULL);
 }
-
+void *watch(void *threadid)
+{ long tid;
+  tid=(long)threadid;
+  bool couldStop;
+  couldStop=true;
+  while(!stop)
+  {//pthread_mutex_lock(&myMutex);
+   int *array=readArr();
+   for (int i=0;i<number-1;i++)
+   {if (array[i]>array[i+1])
+    {
+      couldStop=false;
+      break;
+    }
+   }
+   if (couldStop)
+     stop=true;
+  }
+  // pthread_mutex_unlock(&myMutex);
+ 
+}
 
 int main(int argc, char* argv[])
 {
@@ -179,7 +207,7 @@ int main(int argc, char* argv[])
   srand(time(0)); 
   if (argc!=2)
   {
-    cout<<"enter only the number of elements in the list in the commmandline"<<endl;
+    cout<<"enter the number of elements in the list in the commmandline"<<endl;
     exit(-1);
   }
   else
@@ -198,7 +226,7 @@ int main(int argc, char* argv[])
     out<<rand()%range<<"\t";
   out<<endl;
   
-  while(true){
+  while(!stop){
     cout<<"Enter the number of threads:\n";
     cin>>SNThreads;
     if (NThreads = atoi(SNThreads))
@@ -209,21 +237,27 @@ int main(int argc, char* argv[])
       cout<<"Invalid input!"<<endl;
     }
   }
-  cout<<"There're "<<NThreads<<" threads initilized!"<<endl;
-   
-  
+  cout<<"There're "<<NThreads<<"sorting threads initilized!"<<endl;
+   stop=false;
    pthread_t threads[NThreads];
    int rc;
    long t;
    for(t=0;t<NThreads;t++){
      rc = pthread_create(&threads[t], NULL, threadSort, (void *)t);
+    // pthread_join(threads[t],NULL);
+   }
+   t++;
+   pthread_t watcher;
+   rc=pthread_create(&watcher,NULL, watch,(void*)t);
+   for(t=0;t<NThreads;t++){
      pthread_join(threads[t],NULL);
    }
-   int *array=readArr();
-   bubbleSort(array,4,number-1);
-  for (int i=0; i<number;i++)
-    cout<<array[i]<<endl;
-  out.close();
+   pthread_join(watcher,NULL);
+//   int *array=readArr();
+//   bubbleSort(array,4,number-1);
+//  for (int i=0; i<number;i++)
+//    cout<<array[i]<<endl;
+//  out.close();
  
  
   return 0;
