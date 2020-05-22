@@ -112,7 +112,7 @@ int* readArr()
     lastLine=dummy1;
   else
     lastLine=dummy2;
-  cout<<lastLine<<endl;
+ // cout<<lastLine<<endl;
   //cout<<lastLine.length()<<endl;
   element="";
   j=0;
@@ -168,7 +168,7 @@ void *threadSort(void *threadid)
      printf(" thread #%ld sorting!     ", tid);
      partialSort();
      pthread_mutex_unlock(&myMutex);
-     break;
+//     break;
    }
   fflush(stdout);
     pthread_exit(NULL);
