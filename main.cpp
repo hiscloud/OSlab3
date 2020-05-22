@@ -1,3 +1,8 @@
+//Author: Junyu Lu 41176974
+// Range of elements is integer from 0 to 99 inclusive, can be changed in main function
+// File name is log.txt, can be changed in the globally string "filename"
+// Each updated element will be in console and file, but the i&j value and sorting method only appears in console.
+// Add -pthread when compiling in linux
 #include<iostream>
 #include<array>
 #include<fstream>
@@ -9,6 +14,7 @@
 
 using namespace std;
 
+
 //global variables
 pthread_mutex_t myMutex;
 ofstream out;
@@ -19,8 +25,7 @@ int number=0;
 string filename="log.txt";
 int NThreads=0;
 
-// The number of elements (n) should be provided as command line argument, while the
-//number of threads (M) should be read from the console.
+
 void bubbleSort(int* arr, int low,int high1)
 {
   int high=high1+1;
@@ -83,11 +88,8 @@ void quickSort(int* arr, int low,int high)
 }
 ////////////////////////////////////////////////
 
-
-
 void printArr(int* arr, int low, int high)
 {
-  //out.open(filename);
   for (int i=low; i<=high;i++)
   {
     cout<<arr[i]<<"\t";
@@ -95,7 +97,6 @@ void printArr(int* arr, int low, int high)
   }
   cout<<endl;
   out<<endl;
- // out.close();
 }
 int* readArr()
 {
@@ -117,8 +118,6 @@ int* readArr()
     lastLine=dummy1;
   else
     lastLine=dummy2;
-  //cout<<lastLine<<endl;
-  //cout<<lastLine.length()<<endl;
   element="";
   j=0;
   for (int i=0;i<lastLine.length();i++)
@@ -205,7 +204,7 @@ void *watch(void *threadid)
    {
      stop=true;
      out.close();
-     cout<<"sorting complete, element list of each update can be found in "<<filename<<endl;
+     cout<<"Sorting complete! The element list of each update can be found in "<<filename<<endl;
      exit(-1);
    }
    pthread_mutex_unlock(&myMutex);
@@ -283,9 +282,7 @@ int main(int argc, char* argv[])
      pthread_join(threads[t],NULL);
    }
    pthread_join(watcher,NULL);
-  out.close();
+   out.close();
 
- 
- 
   return 0;
 }
