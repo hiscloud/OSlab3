@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <stdio.h>
+#include <unistd.h>
 
 using namespace std;
 
@@ -12,9 +13,11 @@ using namespace std;
 pthread_mutex_t myMutex;
 ofstream out;
 bool stop;
-//ifstream in;
+bool check;
+bool* canRun;
 int number=0;
 string filename="log.txt";
+int NThreads=0;
 
 // The number of elements (n) should be provided as command line argument, while the
 //number of threads (M) should be read from the console.
@@ -84,6 +87,7 @@ void quickSort(int* arr, int low,int high)
 
 void printArr(int* arr, int low, int high)
 {
+  //out.open(filename);
   for (int i=low; i<=high;i++)
   {
     cout<<arr[i]<<"\t";
@@ -91,6 +95,7 @@ void printArr(int* arr, int low, int high)
   }
   cout<<endl;
   out<<endl;
+ // out.close();
 }
 int* readArr()
 {
@@ -112,7 +117,7 @@ int* readArr()
     lastLine=dummy1;
   else
     lastLine=dummy2;
- // cout<<lastLine<<endl;
+  //cout<<lastLine<<endl;
   //cout<<lastLine.length()<<endl;
   element="";
   j=0;
@@ -161,13 +166,19 @@ void *threadSort(void *threadid)
 {
    long tid;
    tid = (long)threadid;
-   while ( true)
+   while ( !stop)
    {
- //   sortMethodN=rand()%3;
+     while(!canRun[tid]||check);
      pthread_mutex_lock(&myMutex);
      printf(" thread #%ld sorting!     ", tid);
      partialSort();
      pthread_mutex_unlock(&myMutex);
+     check=true;
+     canRun[tid]=false;
+     if (tid<NThreads-1)
+       canRun[tid+1]=true;
+     else
+       canRun[0]=true;
 //     break;
    }
   fflush(stdout);
@@ -177,10 +188,12 @@ void *watch(void *threadid)
 { long tid;
   tid=(long)threadid;
   bool couldStop;
-  couldStop=true;
+  
   while(!stop)
-  {//pthread_mutex_lock(&myMutex);
+  {while(!check);
+   pthread_mutex_lock(&myMutex);
    int *array=readArr();
+   couldStop=true;
    for (int i=0;i<number-1;i++)
    {if (array[i]>array[i+1])
     {
@@ -189,21 +202,27 @@ void *watch(void *threadid)
     }
    }
    if (couldStop)
+   {
      stop=true;
+     out.close();
+     cout<<"sorting complete, element list of each update can be found in "<<filename<<endl;
+     exit(-1);
+   }
+   pthread_mutex_unlock(&myMutex);
+   check=false;
   }
-  // pthread_mutex_unlock(&myMutex);
- 
+   
+
 }
 
 int main(int argc, char* argv[])
 {
 //  int number=0;
   char SNThreads[5];
-  int NThreads;
-// ofstream out;
   string filename="log.txt";
   int range=100;
-  
+  pthread_mutex_init(&myMutex,NULL);
+
   srand(time(0)); 
   if (argc!=2)
   {
@@ -222,11 +241,17 @@ int main(int argc, char* argv[])
   }
   cout<<"There are "<<number<<" elements in the file."<<endl;
   out.open(filename);
+  int element;
    for( int i=0; i< number; i++)
-    out<<rand()%range<<"\t";
+   {
+    int element=rand()%range; 
+    cout<<element<<"\t";
+    out<<element<<"\t";
+   }
+  cout<<endl;
   out<<endl;
-  
-  while(!stop){
+ 
+  while(true){
     cout<<"Enter the number of threads:\n";
     cin>>SNThreads;
     if (NThreads = atoi(SNThreads))
@@ -237,11 +262,16 @@ int main(int argc, char* argv[])
       cout<<"Invalid input!"<<endl;
     }
   }
-  cout<<"There're "<<NThreads<<"sorting threads initilized!"<<endl;
+   cout<<"There're "<<NThreads<<" sorting threads initilized!"<<endl;
    stop=false;
    pthread_t threads[NThreads];
    int rc;
    long t;
+   bool run[NThreads];
+   canRun=run;
+   for(int i=0;i<NThreads;i++)
+     canRun[i]=false;
+   canRun[0]=true;
    for(t=0;t<NThreads;t++){
      rc = pthread_create(&threads[t], NULL, threadSort, (void *)t);
     // pthread_join(threads[t],NULL);
@@ -253,11 +283,8 @@ int main(int argc, char* argv[])
      pthread_join(threads[t],NULL);
    }
    pthread_join(watcher,NULL);
-//   int *array=readArr();
-//   bubbleSort(array,4,number-1);
-//  for (int i=0; i<number;i++)
-//    cout<<array[i]<<endl;
-//  out.close();
+  out.close();
+
  
  
   return 0;
